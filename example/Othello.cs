@@ -1,27 +1,26 @@
-public class Notakto
+public struct Data 
 {
-    int boards = 0;
-    bool[] data;
-    byte[] sums;
-    int lastBoard = 0;
-    int lastPosition = 0;
+    public ulong White { get; } = (1 << 27) + (1 << 36);
+    public ulong Black { get; } = (1 << 28) + (1 << 35);
 
-    public Notakto(int boards)
+    public Data(ulong white, ulong black)
     {
-        this.boards = boards;
-        data = new bool[9 * boards];
-        sums = new byte[8 * boards];
+        White = white;
+        Black = black;
     }
-    
-    /// <summary>
-    /// Obtém a última jogada
-    /// </summary>
-    public (int board, int position) GetLast()
-        => (lastBoard, lastPosition);
-
-    /// <summary>
-    /// Joga em uma posição em um tabuleiro
-    /// </summary>
+}
+public class Othello
+{
+    private const ulong u = 1;
+    Data data = new Data();
+    int whiteCount = 0;
+    int blackCount = 0;
+    public Othello(Data data, int white, int black)
+    {
+        this.data = data;
+        whiteCount = white;
+        blackCount = black;
+    }
     public void Play(int board, int posit)
     {
         lastBoard = board;
@@ -37,10 +36,6 @@ public class Notakto
         if (posit % 2 == 0 && posit > 0 && posit < 8)
             sums[sumsIndex + 7]++;
     }
-    
-    /// <summary>
-    /// Testa e retorna verdadeiro se você pode jogar em um tabuleiro
-    /// </summary>
     public bool CanPlay(int board)
     {
         int boardIndex = 8 * board;
@@ -51,10 +46,6 @@ public class Notakto
         }
         return true;
     }
-    
-    /// <summary>
-    /// Retorna verdadeiro se o jogo acabou
-    /// </summary>
     public bool GameEnded()
     {
         for (int i = 0; i < boards; i++)
@@ -64,10 +55,6 @@ public class Notakto
         }
         return true;
     }
-
-    /// <summary>
-    /// Cria uma cópia indentica do estado.
-    /// </summary>
     public Notakto Clone()
     {
         Notakto copy = new Notakto(boards);
@@ -83,10 +70,6 @@ public class Notakto
         );
         return copy;
     }
-
-    /// <summary>
-    /// Obtém próximas jogadas válidas
-    /// </summary>
     public IEnumerable<Notakto> Next()
     {
         var clone = this.Clone();
