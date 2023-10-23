@@ -8,26 +8,82 @@ public class Node
 
     public Node Play(int board, int position)
     {
-        // Seu código aqui...
+        foreach (var child in Children)
+        {
+            var last = child.State.GetLast();
+            if (last.board == board && last.position == position)
+                return child;
+        }
+        return null;
     }
 
     public void Expand(int deep)
     {
-        // Seu código aqui...
+        if (deep == 0)
+            return;
+        
+        if (!this.Expanded)
+        {
+            var nexts = this.State.Next();
+            foreach (var next in nexts)
+                this.Children.Add(new Node()
+                {
+                    State = next,
+                    YouPlays = !YouPlays
+                });
+            this.Expanded = true;
+        }
+
+        foreach (var child in this.Children)
+            child.Expand(deep - 1);
     }
 
     public Node PlayBest()
     {
-        // Seu código aqui...
+        return Children.MaxBy(n => 
+            YouPlays ? n.Avaliation : -n.Avaliation
+        );
     }
 
     public float MiniMax()
     {
-        // Seu código aqui...
+        if (this.Children.Count == 0)
+        {
+            this.Avaliation = aval();
+            return this.Avaliation;
+        }
+
+        if (YouPlays)
+        {
+            var value = float.NegativeInfinity;
+            foreach (var child in Children)
+            {
+                var avaliation = child.MiniMax();
+                if (avaliation > value)
+                    value = avaliation;
+            }
+            this.Avaliation = value;
+            return this.Avaliation;
+        }
+        else
+        {
+            var value = float.PositiveInfinity;
+            foreach (var child in Children)
+            {
+                var avaliation = child.MiniMax();
+                if (avaliation < value)
+                    value = avaliation;
+            }
+            this.Avaliation = value;
+            return this.Avaliation;
+        }
     }
 
     private float aval()
     {
-        // Seu código aqui...
+        if (State.GameEnded())
+            return YouPlays ? float.PositiveInfinity : float.NegativeInfinity;
+        
+        return Random.Shared.NextSingle();
     }
 }

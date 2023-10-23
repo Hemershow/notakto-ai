@@ -24,7 +24,18 @@ public class Notakto
     /// </summary>
     public void Play(int board, int posit)
     {
-        // Seu código aqui...
+        lastBoard = board;
+        lastPosition = posit;
+
+        var tableIndex = 9 * board;
+        var sumsIndex = 8 * board;
+        data[tableIndex + posit] = true;
+        sums[sumsIndex + (posit / 3)]++;
+        sums[sumsIndex + (posit % 3) + 3]++;
+        if (posit % 4 == 0)
+            sums[sumsIndex + 6]++;
+        if (posit % 2 == 0 && posit > 0 && posit < 8)
+            sums[sumsIndex + 7]++;
     }
     
     /// <summary>
@@ -32,7 +43,13 @@ public class Notakto
     /// </summary>
     public bool CanPlay(int board)
     {
-        // Seu código aqui...
+        int boardIndex = 8 * board;
+        for (int i = 0; i < 8; i++)
+        {
+            if (sums[boardIndex + i] == 3)
+                return false;
+        }
+        return true;
     }
     
     /// <summary>
@@ -40,7 +57,12 @@ public class Notakto
     /// </summary>
     public bool GameEnded()
     {
-        // Seu código aqui...
+        for (int i = 0; i < boards; i++)
+        {
+            if (CanPlay(i))
+                return false;
+        }
+        return true;
     }
 
     /// <summary>
@@ -67,6 +89,21 @@ public class Notakto
     /// </summary>
     public IEnumerable<Notakto> Next()
     {
-        // Seu código aqui...
+        var clone = this.Clone();
+        for (int b = 0; b < boards; b++)
+        {
+            if (!CanPlay(b))
+                continue;
+            
+            for (int p = 0; p < 9; p++)
+            {
+                if (data[b * 9 + p])
+                    continue;
+                
+                clone.Play(b, p);
+                yield return clone;
+                clone = this.Clone();
+            }
+        }
     }
 }
